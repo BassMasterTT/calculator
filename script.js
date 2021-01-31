@@ -2,6 +2,19 @@ const calculatorDisplay = document.querySelector('h1');
 const inputBtns = document.querySelectorAll('button');
 const clearBtn = document.getElementById('clear-btn');
 
+// Calculate first and second values depending on operator
+const calculate = {
+  '/': (firstNumber, secondNumber) => firstNumber / secondNumber,
+
+  '*': (firstNumber, secondNumber) => firstNumber * secondNumber,
+
+  '+': (firstNumber, secondNumber) => firstNumber + secondNumber,
+
+  '-': (firstNumber, secondNumber) => firstNumber - secondNumber,
+
+  '=': (firstNumber, secondNumber) => secondNumber,
+};
+
 let firstValue = 0;
 let operatorValue = '';
 let awaitingNextValue = false;
@@ -30,17 +43,30 @@ function addDecimal() {
 
 function useOperator(operator) {
   const currentValue = Number(calculatorDisplay.textContent);
-  // Assingn firstValue if no value
+  // Prevent multiple operators
+  if (operatorValue && awaitingNextValue) {
+    operatorValue = operator;
+    return;
+  }
+  // Assign firstValue if no value
   if (!firstValue) {
     firstValue = currentValue;
   } else {
-    console.log('currenValue', currentValue);
+    const calculation = calculate[operatorValue](firstValue, currentValue);
+    calculatorDisplay.textContent = calculation;
+    firstValue = calculation;
   }
   // Ready for next value, store operator
   awaitingNextValue = true;
   operatorValue = operator;
-  console.log('firstValue', firstValue);
-  console.log('operator', operatorValue);
+}
+
+// Reset all values, display
+function resetAll() {
+  firstValue = 0;
+  operatorValue = '';
+  awaitingNextValue = false;
+  calculatorDisplay.textContent = '0';
 }
 
 // Add Event Listeners for numbers, operators, decimal buttons
@@ -54,13 +80,5 @@ inputBtns.forEach((inputBtn) => {
   }
 });
 
-// Reset all values, display
-function resetAll() {
-  firstValue = 0;
-  operatorValue = '';
-  awaitingNextValue = false;
-  calculatorDisplay.textContent = '0';
-}
-
-// Event Listener
+// Event Listener for the clear button
 clearBtn.addEventListener('click', resetAll);
